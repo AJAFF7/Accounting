@@ -1,0 +1,94 @@
+{
+  "profiles": {
+    "Accounting": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "USE_LOCAL_AUTHENTICATION": "true",
+        "USE_DIT_THEME": "false",
+        "DISABLE_PROFILE_UPDATE": "false",
+
+        "DB_CONTEXTS_COUNT": "2",
+        "DB_CONTEXT_0_NAME": "Admin",
+        "DB_CONTEXT_0_SERVER": "192.168.200.20",
+        "DB_CONTEXT_0_DATABASE": "SoftMax",
+        "DB_CONTEXT_0_USER": "max",
+        "DB_CONTEXT_0_PASSWORD": "SoftMax123!@#",
+        "DB_CONTEXT_0_ACTIVE": "true",
+        "DB_CONTEXT_1_NAME": "Accounting",
+        "DB_CONTEXT_1_SERVER": "192.168.200.20",
+        "DB_CONTEXT_1_DATABASE": "SoftMax",
+        "DB_CONTEXT_1_USER": "max",
+        "DB_CONTEXT_1_PASSWORD": "SoftMax123!@#",
+        "DB_CONTEXT_1_ACTIVE": "true",
+
+        "OPENIDCONNECT_AUTHORITY": "https://id.soft-max.krd",
+        "OPENIDCONNECT_CLIENT_ID": "18BB820C04B44A45966A66C35631FC87",
+        "OPENIDCONNECT_CLIENT_SECRET": "HSsCs4R1CKubKjsoXHlvMRHd2a07kMNr2m6fbG8kvRQYwAd1OF1PHTTx6itdN8EE",
+        "OPENIDCONNECT_CALLBACK_PATH": "/signin-oidc",
+        "OPENIDCONNECT_SIGNOUT_CALLBACK_PATH": "/signout-callback-oidc",
+        "OPENIDCONNECT_BACKCHANNEL_TIMEOUT_SECONDS": "10",
+        "OPENIDCONNECT_CLOCK_SKEW_MINUTES": "2",
+        "OPENIDCONNECT_GET_CLAIMS_FROM_USERINFO": "false",
+        "OPENIDCONNECT_CONFIG_REFRESH_MINUTES": "30",
+
+        "REDIS_CONNECTION": "localhost:6379",
+        "BACKGROUND_SERVICES_ENABLED": "false",
+        "EMAIL_SERVICE_EXECUTION_INTERVAL_MILLISECONDS": "30000",
+        "JOB_SERVICE_POLLING_INTERVAL_SECONDS": "30",
+        "DEFAULT_URL": "/Modules",
+        "APP_LOGO": "/app/manifest/web-app-manifest-192x192.png",
+
+        "AUTHENTICATION_PASSKEY_ENABLED": "true",
+        "IDENTITY_PASSWORD_REQUIRED_LENGTH": "6",
+        "IDENTITY_PASSWORD_REQUIRED_UNIQUE_CHARS": "1",
+        "IDENTITY_PASSWORD_REQUIRE_NON_ALPHANUMERIC": "false",
+        "IDENTITY_PASSWORD_REQUIRE_LOWERCASE": "true",
+        "IDENTITY_PASSWORD_REQUIRE_UPPERCASE": "false",
+        "IDENTITY_PASSWORD_REQUIRE_DIGIT": "true",
+        "IDENTITY_USER_ALLOWED_USERNAME_CHARACTERS": "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+",
+        "IDENTITY_USER_REQUIRE_UNIQUE_EMAIL": "true",
+        "IDENTITY_LOCKOUT_ALLOWED_FOR_NEW_USERS": "true",
+        "IDENTITY_LOCKOUT_MAX_FAILED_ACCESS_ATTEMPTS": "10",
+        "IDENTITY_LOCKOUT_DEFAULT_LOCKOUT_TIMESPAN": "00:05:00",
+        "IDENTITY_SIGNIN_REQUIRE_CONFIRMED_EMAIL": "false",
+        "IDENTITY_SIGNIN_REQUIRE_CONFIRMED_PHONE_NUMBER": "false",
+        "IDENTITY_SIGNIN_REQUIRE_CONFIRMED_ACCOUNT": "false",
+        "IDENTITY_COOKIE_EXPIRE_TIMESPAN": "30.00:00:00",
+
+        "JWT_SECRET_KEY": "bLz5bdOEDO598sxeyKxgKEcU5lHlUMmur7l4f1Ugqsc8k9x3lSo2eAqMmnfV4b1lIdiVnBBoKLOjWPaWRTAOhWTb2eySnDI9uTcX4kdU1zqWQb5FIhTcU1G8e3p1Hb2MmVzujixjTjkF",
+        "JWT_ISSUER": "SoftMax.Identity",
+        "JWT_AUDIENCE": "SoftMax.API",
+        "JWT_EXPIRATION_MINUTES": "60",
+
+        "PUSH_NOTIFICATIONS_SUBJECT": "info@soft-max.com",
+        "PUSH_NOTIFICATIONS_PUBLIC_KEY": "BGtSHr9emEA9K8tnxO2BVfdtmUjSvUf7Z2Jk4L9V-wsek9vRWkPQhNBKJuLRyhX2kTOJ1piRdvzNXjucMnmC-3o",
+        "PUSH_NOTIFICATIONS_PRIVATE_KEY": "tcRO5wU8flbqV4l1vHuuzLD0GNZSGnmPv7BeKdmKma0",
+
+        "SEED_SECURITY_ENABLED": "true",
+        "SEED_SECURITY_DATA": "false",
+
+        "MINIO_ENDPOINT_IP": "91.99.139.212:9000",
+        "MINIO_ENDPOINT_DOMAIN": "s3.dAccounting.krd",
+        "MINIO_ACCESS_KEY": "jUCrksmRwsd5trJkbFaZ",
+        "MINIO_SECRET_KEY": "Ry9YiBgy3n91A6oqe7xrFWkgVkQZLwQODwQ6ySTV",
+        "MINIO_USE_SSL_IP": "false",
+        "MINIO_USE_SSL_DOMAIN": "true",
+
+        "KRDPASS_ENABLED": "false",
+        "KRDPASS_AUTHORITY": "https://account.id.krd",
+        "KRDPASS_CLIENT_ID": "client-id",
+        "KRDPASS_CLIENT_SECRET": "client-secret",
+        "KRDPASS_CALLBACK_PATH": "/signin-krdpass",
+        "KRDPASS_SIGNOUT_CALLBACK_PATH": "/signout-callback-krdpass",
+        "KRDPASS_BACKCHANNEL_TIMEOUT_SECONDS": "10",
+        "KRDPASS_CLOCK_SKEW_MINUTES": "2",
+        "KRDPASS_GET_CLAIMS_FROM_USERINFO": "true"
+      },
+      "dotnetRunMessages": true,
+      "applicationUrl": "https://0.0.0.0:443;http://localhost:80",
+      "hotReloadEnabled": false
+    }
+  },
+  "$schema": "https://json.schemastore.org/launchsettings.json"
+}

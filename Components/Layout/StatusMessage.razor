@@ -1,0 +1,29 @@
+﻿@using MudBlazor
+@using SoftMax.Core
+@if (!string.IsNullOrEmpty(DisplayMessage))
+{
+    var statusMessageClass = DisplayMessage.StartsWith("error",StringComparison.InvariantCultureIgnoreCase) ? Severity.Error : Severity.Success;
+    <MudAlert Severity="statusMessageClass" Class="mt-3 py-1 px-2">@DisplayMessage</MudAlert>
+}
+
+@code {
+    private string messageFromCookie;
+
+    [Parameter]
+    public string Message { get; set; }
+
+    [CascadingParameter]
+    private HttpContext HttpContext { get; set; } = default!;
+
+    private string DisplayMessage => Message ?? messageFromCookie;
+
+    protected override void OnInitialized()
+    {
+        messageFromCookie = HttpContext.Request.Cookies[IdentityRedirectManager.StatusCookieName];
+
+        if (messageFromCookie is not null)
+        {
+            HttpContext.Response.Cookies.Delete(IdentityRedirectManager.StatusCookieName);
+        }
+    }
+}

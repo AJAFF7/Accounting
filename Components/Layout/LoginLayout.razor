@@ -1,0 +1,53 @@
+@inherits LayoutComponentBase
+@attribute [ExcludeFromInteractiveRouting]
+
+<HeadContent>
+    @if (UseDITTheme)
+    {
+        <link rel="stylesheet" href="@Assets[$"core/css/app.main.theme-dit.css"]" />
+    }
+    else
+    {
+        <link rel="stylesheet" href="@Assets[$"core/css/app.main.theme-default.css"]" />
+    }
+
+    <link rel="stylesheet" href='@Assets["core/fonts/remixicon/remixicon.css"]' />
+    <link rel="stylesheet" href='@Assets["core/css/app.login.css"]' />
+    
+    @{
+        var customCss = Environment.GetEnvironmentVariable("LOGIN_CSS_STYLES");
+        if (!string.IsNullOrEmpty(customCss))
+        {
+            <style>
+                @((MarkupString)customCss)
+            </style>
+        }
+    }
+</HeadContent>
+
+<MudRTLProvider RightToLeft="System.Globalization.CultureInfo.CurrentCulture.TextInfo.IsRightToLeft">
+    <MudThemeProvider Theme=ThemeHelper.Theme />
+    <MudDialogProvider />
+    <MudSnackbarProvider />
+    <MudLayout>
+        <MudContainer MaxWidth="MaxWidth.Large" Class="login-layout-container d-flex justify-center align-center">
+            @Body
+        </MudContainer>
+    </MudLayout>
+</MudRTLProvider>
+
+<script src="@Assets["_content/Extensions.MudBlazor.StaticInput/NavigationObserver.js"]"></script>
+<script src="@Assets[$"core/js/app.login.js"]"></script>
+<script src="@Assets[$"core/js/app.login.passkey.js"]"></script>
+
+<div id="blazor-error-ui" data-nosnippet>
+    An unhandled error has occurred.
+    <a href="." class="reload">Reload</a>
+    <span class="dismiss">🗙</span>
+</div>
+
+@code {
+    private string AppVersion => System.Reflection.Assembly.GetEntryAssembly()?.GetName().Version?.ToString() ?? "1.0.0";
+    private bool UseDITTheme => ConfigurationHelper.GetBool("USE_DIT_THEME", false);
+
+}

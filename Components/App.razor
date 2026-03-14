@@ -1,0 +1,79 @@
+﻿<!DOCTYPE html>
+<html dir="@Direction" lang="@CultureInfo.CurrentCulture.TwoLetterISOLanguageName" dark-mode="">
+<head>
+    <base href="/" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <ResourcePreloader />
+    <_Favicons AppName="Accounting App" />
+    <link href="@Assets["_content/MudBlazor/MudBlazor.min.css"]" rel="stylesheet" />
+    <link href="@Assets["_content/CodeBeam.MudBlazor.Extensions/MudExtensions.min.css"]" rel="stylesheet" />
+    <link href="@Assets[$"{utilitiesCssPath}"]" rel="stylesheet" />
+
+    <script>
+        const getDarkModeCookie = () => {
+            const cookies = document.cookie.split(';');
+            for (let cookie of cookies) {
+                const trimmed = cookie.trim();
+                if (trimmed.startsWith('DarkMode=')) {
+                    return trimmed.split('=')[1] === 'true';
+                }
+            }
+            return false;
+        };
+
+        const isDark = getDarkModeCookie();
+        document.documentElement.setAttribute('dark-mode', isDark.toString());
+    </script>
+    <HeadOutlet @rendermode="PageRenderMode" />
+</head>
+<body>
+    <Routes @rendermode="PageRenderMode" />
+    <ReconnectModal />
+
+    <div id="print-area" style="display:none"></div>
+
+    <div id="blazor-error-ui" style="display: none;">
+        <div class="mud-alert mud-alert-filled mud-alert-filled-error">
+            <div class="mud-alert-message">
+                An error has occurred. Please refresh the page.
+            </div>
+            <button class="mud-button-root mud-icon-button" onclick="window.location.reload()">
+                <span class="mud-icon-root mud-svg-icon">↻</span>
+            </button>
+        </div>
+    </div>
+
+    <script src="@Assets["_framework/blazor.web.js"]"></script>
+    <script src="@Assets["_content/MudBlazor/MudBlazor.min.js"]"></script>
+    <script src="@Assets["_content/CodeBeam.MudBlazor.Extensions/MudExtensions.min.js"]"></script>
+</body>
+</html>
+
+@code {
+    [Inject] public IStringLocalizer Localizer { get; set; } = default!;
+    [CascadingParameter] private HttpContext HttpContext { get; set; } = default!;
+
+    public string Direction => CultureInfo.CurrentCulture.TextInfo.IsRightToLeft ? "rtl" : "ltr";
+
+    protected override void OnInitialized()
+    {
+        HttpContext?.Response.Cookies.Append(
+            CookieRequestCultureProvider.DefaultCookieName,
+            CookieRequestCultureProvider.MakeCookieValue(
+                new(CultureInfo.CurrentCulture, CultureInfo.CurrentUICulture)));
+    }
+
+    private IComponentRenderMode PageRenderMode
+    {
+        get
+        {
+            return HttpContext.AcceptsInteractiveRouting() ? new InteractiveServerRenderMode(prerender: true) : null;
+        }
+    }
+
+    private string utilitiesCssPath =>
+        CultureInfo.CurrentCulture.TextInfo.IsRightToLeft
+            ? "/core/css/bootstrap-utilities.rtl.min.css"
+            : "/core/css/bootstrap-utilities.min.css";
+}

@@ -1,0 +1,31 @@
+@page "/Accounting/Lookups"
+@inherits AuthorizeComponent<Lookups>
+<PageTitle>@GeneratePageTitle()</PageTitle>
+
+<SoftMaxGrid T=LookupRepository.Model TComponent=Lookups
+             @ref=SoftMaxGrid
+             @bind-Loading=Repository.DataGridLoading
+             Title="Lookups"
+             Component=this
+             Functions=Functions
+             Repository=Repository
+             Templates=Templates
+             DeleteAsync=Repository.DeleteAsync
+             DbContextFactory=_repositoryService._dbContextFactory
+             ExtraButtons=[toolbarButton]
+             DeleteButton=@new(string.Empty, color: Color.Error)
+             AddButton=@new(string.Empty, color: Color.Primary, onClick: async e => await Repository.AddClickAsync(SoftMaxGrid))>
+    <ToolbarContent>
+        <SoftMaxDropDownList Clearable
+                             T=string
+                             Value=_selectedType
+                             ValueChanged="SelectedTypeChanged"
+                             Variant="Text"
+                             FullWidth=false
+                             ItemCollection=LookupTypes
+                             Placeholder="@Localizer["Filter by types"].Value"
+                             Margin="Margin.Dense"
+                             Style="width:170px"
+                             Class="mt-0 me-3" />
+    </ToolbarContent>
+</SoftMaxGrid>

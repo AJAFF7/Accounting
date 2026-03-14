@@ -1,0 +1,47 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+	<PropertyGroup>
+		<TargetFramework>net10.0</TargetFramework>
+		<Nullable>disable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Title>Accounting</Title>
+		<Version>25.11.10.1</Version>
+		<AssemblyVersion>25.11.10.1</AssemblyVersion>
+		<FileVersion>25.11.10.1</FileVersion>
+		<Authors>NoobMaster</Authors>
+		<Company>SoftMax</Company>
+		<Product>Blazor</Product>
+		<DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+		<DockerfileContext>.</DockerfileContext>
+		<DockerfileTag>softmax</DockerfileTag>
+		<RuntimeIdentifiers>linux-x64</RuntimeIdentifiers>
+		<NuGetAudit>false</NuGetAudit>
+		<NuGetAuditMode>direct</NuGetAuditMode>
+		<UserSecretsId>b944150a-89d9-4f9e-8168-50f5d62e3414</UserSecretsId>
+		<NoWarn>$(NoWarn);MUD0002</NoWarn>
+		<NoWarn>$(NoWarn);NU1608</NoWarn>
+		<NoWarn>$(NoWarn);BL0008</NoWarn>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="SkiaSharp" Version="3.119.2" />
+		<PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="3.119.2" />
+		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.23.0" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.5">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="Serilog.Enrichers.Environment" Version="3.0.1" />
+		<PackageReference Include="Serilog.Enrichers.Thread" Version="4.0.0" />
+		<PackageReference Include="SoftMax.Core" Version="26.3.13.2" />
+		<PackageReference Include="SoftMax.Core.StaticAssets" Version="26.3.13.1" />
+		<PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="5.0.0" />
+		<PackageReference Include="Microsoft.CodeAnalysis.VisualBasic" Version="5.0.0" />
+		<PackageReference Include="Microsoft.CodeAnalysis.Workspaces.Common" Version="5.0.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Folder Include="SqlScripts\" />
+	</ItemGroup>
+
+</Project>

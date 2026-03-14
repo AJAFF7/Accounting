@@ -1,0 +1,346 @@
+@inherits SoftMaxComponent
+<SoftMaxDialog>
+    <Content>
+        <MudForm @ref=Form Class=my-3>
+            <MudGrid Spacing=2>
+                <SoftMaxGridItem md="12">
+                    <MudText Typo="Typo.h6" Class="mb-3">@Localizer["Batch Operations on Fields"].Value</MudText>
+                </SoftMaxGridItem>
+
+                <SoftMaxGridItem md="4">
+                    <MudSelect Value="selectedOperation"
+                               ValueChanged="@(async (BatchOperation value) => await OnOperationChanged(value))"
+                               Label=@Localizer["Operation"].Value
+                               Variant="Variant.Outlined"
+                               Margin="Margin.Dense"
+                               Dense="true"
+                               Required="true"
+                               RequiredError="Please select an operation">
+                        <MudSelectItem Value="BatchOperation.Add">@Localizer["Add Field"].Value</MudSelectItem>
+                        <MudSelectItem Value="BatchOperation.Remove">@Localizer["Remove Field"].Value</MudSelectItem>
+                        <MudSelectItem Value="BatchOperation.Update">@Localizer["Update Field"].Value</MudSelectItem>
+                    </MudSelect>
+                </SoftMaxGridItem>
+
+                <SoftMaxGridItem md="4">
+                    <MudSelect Value="selectedType"
+                               ValueChanged="@(async (string value) => await OnTypeChanged(value))"
+                               Label=@Localizer["Type Filter (Optional)"].Value
+                               Variant="Variant.Outlined"
+                               Margin="Margin.Dense"
+                               Dense="true"
+                               Clearable="true">
+                        @if (availableTypes != null)
+                        {
+                            @foreach (var type in availableTypes)
+                            {
+                                <MudSelectItem Value="@type.Value">@type.Text</MudSelectItem>
+                            }
+                        }
+                    </MudSelect>
+                </SoftMaxGridItem>
+
+                <SoftMaxGridItem md="4">
+                    <MudAutocomplete Value="fieldKey"
+                                     ValueChanged="@(async (string value) => await OnFieldKeyChanged(value))"
+                                     Label=@Localizer["Field Key"].Value
+                                     Required="true"
+                                     RequiredError="Field key is required"
+                                     Variant="Variant.Outlined"
+                                     Margin="Margin.Dense"
+                                     Dense="true"
+                                     Strict="false"
+                                     CoerceValue
+                                     CoerceText
+                                     SearchFunc="SearchFieldKeys"
+                                     FullWidth="true"
+                                     Clearable="true" />
+                </SoftMaxGridItem>
+
+                @if (selectedOperation != BatchOperation.Remove)
+                {
+                    <SoftMaxGridItem md="6">
+                        <MudTextField @bind-Value="fieldValue"
+                                      Label=@Localizer["New Field Value"].Value
+                                      Variant="Variant.Outlined"
+                                      Margin="Margin.Dense"
+                                      DebounceInterval=500
+                                      Immediate
+                                      FullWidth />
+                    </SoftMaxGridItem>
+                }
+
+                @if (selectedOperation == BatchOperation.Update || selectedOperation == BatchOperation.Remove)
+                {
+                    <SoftMaxGridItem md="6">
+                        <MudTextField Value="currentValueFilter"
+                                      ValueChanged="@(async (string value) => await OnCurrentValueFilterChanged(value))"
+                                      Label=@Localizer["Current Value Filter (Optional)"].Value
+                                      Variant="Variant.Outlined"
+                                      Margin="Margin.Dense"
+                                      DebounceInterval=500
+                                      Immediate
+                                      FullWidth
+                                      HelperText=@(selectedOperation == BatchOperation.Update ? 
+                                          Localizer["Only update fields that currently have this value. Leave empty to update all."].Value :
+                                          Localizer["Only remove fields that currently have this value. Leave empty to remove all."].Value) />
+                    </SoftMaxGridItem>
+                }
+
+                <SoftMaxGridItem md="12">
+                    <MudPaper Class="pa-4 mt-2" Outlined>
+                        <MudText Typo="Typo.subtitle1" Class="mb-2">@Localizer["Operation Details"].Value:</MudText>
+                        @if (selectedOperation == BatchOperation.Add)
+                        {
+                            <MudText>
+                                @{
+                                    var message = Localizer["This will add the field '{0}' with value '{1}' to "].Value
+                                        .Replace("{0}", fieldKey ?? "")
+                                        .Replace("{1}", fieldValue ?? "");
+                                    if (recordCount > 0)
+                                    {
+                                        message += $"<strong>{recordCount}</strong>";
+                                    }
+                                    else
+                                    {
+                                        message += Localizer["all"].Value;
+                                    }
+                                    message += Localizer[" lookup record(s)"].Value;
+                                    if (!string.IsNullOrEmpty(selectedType))
+                                    {
+                                        message += Localizer[" of type '{0}'"].Value.Replace("{0}", selectedType);
+                                    }
+                                }
+                                @((MarkupString)message)
+                            </MudText>
+                        }
+                        else if (selectedOperation == BatchOperation.Remove)
+                        {
+                            <MudText>
+                                @{
+                                    var message = Localizer["This will remove the field '{0}' from "].Value
+                                        .Replace("{0}", fieldKey ?? "");
+                                    var countToShow = !string.IsNullOrEmpty(currentValueFilter) ? recordsWithFieldValueCount : recordsWithFieldCount;
+                                    if (countToShow > 0)
+                                    {
+                                        message += $"<strong>{countToShow}</strong>";
+                                    }
+                                    else
+                                    {
+                                        message += Localizer["all"].Value;
+                                    }
+                                    message += Localizer[" lookup record(s) that have this field"].Value;
+                                    if (!string.IsNullOrEmpty(selectedType))
+                                    {
+                                        message += Localizer[" of type '{0}'"].Value.Replace("{0}", selectedType);
+                                    }
+                                    if (!string.IsNullOrEmpty(currentValueFilter))
+                                    {
+                                        message += Localizer[" with current value '{0}'"].Value.Replace("{0}", currentValueFilter);
+                                    }
+                                }
+                                @((MarkupString)message)
+                            </MudText>
+                        }
+                        else if (selectedOperation == BatchOperation.Update)
+                        {
+                            <MudText>
+                                @{
+                                    var message = Localizer["This will update the field '{0}' to value '{1}' in "].Value
+                                        .Replace("{0}", fieldKey ?? "")
+                                        .Replace("{1}", fieldValue ?? "");
+                                    var countToShow = !string.IsNullOrEmpty(currentValueFilter) ? recordsWithFieldValueCount : recordsWithFieldCount;
+                                    if (countToShow > 0)
+                                    {
+                                        message += $"<strong>{countToShow}</strong>";
+                                    }
+                                    else
+                                    {
+                                        message += Localizer["all"].Value;
+                                    }
+                                    message += Localizer[" lookup record(s) that have this field"].Value;
+                                    if (!string.IsNullOrEmpty(selectedType))
+                                    {
+                                        message += Localizer[" of type '{0}'"].Value.Replace("{0}", selectedType);
+                                    }
+                                    if (!string.IsNullOrEmpty(currentValueFilter))
+                                    {
+                                        message += Localizer[" with current value '{0}'"].Value.Replace("{0}", currentValueFilter);
+                                    }
+                                }
+                                @((MarkupString)message)
+                            </MudText>
+                        }
+                        
+                        @if (recordCount > 0 || recordsWithFieldCount > 0)
+                        {
+                            <MudAlert Severity="Severity.Info" Class="mt-2">
+                                @if (selectedOperation == BatchOperation.Add)
+                                {
+                                    @Localizer["Total records that will be affected: {0}"].Value.Replace("{0}", recordCount.ToString())
+                                }
+                                else
+                                {
+                                    var countToShow = !string.IsNullOrEmpty(currentValueFilter) ? recordsWithFieldValueCount : recordsWithFieldCount;
+                                    var countMessage = Localizer["Records with this field: {0}"].Value.Replace("{0}", countToShow.ToString());
+                                    if (!string.IsNullOrEmpty(currentValueFilter))
+                                    {
+                                        countMessage += Localizer[" (filtered by current value)"].Value;
+                                    }
+                                    @countMessage
+                                }
+                            </MudAlert>
+                        }
+                    </MudPaper>
+                </SoftMaxGridItem>
+            </MudGrid>
+        </MudForm>
+    </Content>
+    <Actions>
+        <SoftMaxButton Text="Close"
+                       Disabled=@Repository.ModelProcessing
+                       OnClick=Dialog.Cancel
+                       EndIcon=@Icon.Close
+                       DropShadow=false
+                       Size="Medium" />
+        <SoftMaxButton Text="Execute"
+                       Disabled=@(Repository.ModelProcessing || !IsFormValid())
+                       OnClick=ExecuteOperationAsync
+                       StartIcon=@Icon.PlayArrow
+                       DropShadow=false
+                       Color="Success"
+                       Size="Medium" />
+    </Actions>
+</SoftMaxDialog>
+
+@code {
+    [CascadingParameter] private IMudDialogInstance Dialog { get; set; }
+    [Parameter] public LookupRepository Repository { get; set; }
+    [Parameter] public SoftMaxGrid<LookupRepository.Model, Lookups> DataGrid { get; set; }
+    
+    public MudForm Form { get; set; }
+    
+    private BatchOperation selectedOperation = BatchOperation.Add;
+    private string selectedType = "";
+    private string fieldKey = "";
+    private string fieldValue = "";
+    private string currentValueFilter = "";
+    
+    private List<DataItem<string>> availableTypes;
+    private List<string> availableFieldKeys;
+    private int recordCount = 0;
+    private int recordsWithFieldCount = 0;
+    private int recordsWithFieldValueCount = 0;
+
+    protected override async Task OnInitializedAsync()
+    {
+        availableTypes = await Repository.GetAvailableTypesAsync();
+        availableFieldKeys = await Repository.GetAvailableFieldKeysAsync();
+        await UpdateRecordCounts();
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await UpdateRecordCounts();
+    }
+
+    private async Task UpdateRecordCounts()
+    {
+        recordCount = await Repository.GetRecordCountAsync(selectedType);
+        
+        if (!string.IsNullOrEmpty(fieldKey))
+        {
+            recordsWithFieldCount = await Repository.GetRecordCountWithFieldAsync(fieldKey, selectedType);
+            
+            if ((selectedOperation == BatchOperation.Update || selectedOperation == BatchOperation.Remove) && !string.IsNullOrEmpty(currentValueFilter))
+            {
+                recordsWithFieldValueCount = await Repository.GetRecordCountWithFieldValueAsync(fieldKey, currentValueFilter, selectedType);
+            }
+            else
+            {
+                recordsWithFieldValueCount = recordsWithFieldCount;
+            }
+        }
+        else
+        {
+            recordsWithFieldCount = 0;
+            recordsWithFieldValueCount = 0;
+        }
+        
+        StateHasChanged();
+    }
+
+    private async Task<IEnumerable<string>> SearchFieldKeys(string value, CancellationToken token)
+    {
+        await Task.Delay(1, token);
+
+        if (string.IsNullOrEmpty(value))
+            return availableFieldKeys ?? new List<string>();
+
+        return (availableFieldKeys ?? new List<string>()).Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase));
+    }
+
+    private bool IsFormValid()
+    {
+        if (string.IsNullOrEmpty(fieldKey))
+            return false;
+
+        if (selectedOperation != BatchOperation.Remove && string.IsNullOrEmpty(fieldValue))
+            return false;
+
+        return true;
+    }
+
+    private async Task ExecuteOperationAsync()
+    {
+        if (!IsFormValid())
+            return;
+
+        switch (selectedOperation)
+        {
+            case BatchOperation.Add:
+                await Repository.BatchAddFieldAsync(selectedType, fieldKey, fieldValue);
+                break;
+            case BatchOperation.Remove:
+                await Repository.BatchRemoveFieldAsync(selectedType, fieldKey, currentValueFilter);
+                break;
+            case BatchOperation.Update:
+                await Repository.BatchUpdateFieldAsync(selectedType, fieldKey, fieldValue, currentValueFilter);
+                break;
+        }
+
+        await DataGrid.Grid.ReloadServerData();
+        Dialog.Close();
+    }
+
+    private async Task OnOperationChanged(BatchOperation operation)
+    {
+        selectedOperation = operation;
+        await UpdateRecordCounts();
+    }
+
+    private async Task OnTypeChanged(string type)
+    {
+        selectedType = type;
+        await UpdateRecordCounts();
+    }
+
+    private async Task OnFieldKeyChanged(string key)
+    {
+        fieldKey = key;
+        await UpdateRecordCounts();
+    }
+
+    private async Task OnCurrentValueFilterChanged(string value)
+    {
+        currentValueFilter = value;
+        await UpdateRecordCounts();
+    }
+
+    private enum BatchOperation
+    {
+        Add,
+        Remove,
+        Update
+    }
+}

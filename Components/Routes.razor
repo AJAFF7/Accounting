@@ -1,0 +1,19 @@
+﻿<CascadingAuthenticationState>
+    <Router AppAssembly="typeof(Program).Assembly" AdditionalAssemblies="Assemblies" NotFoundPage="typeof(SoftMax.Core.Shared.Error404)">
+        <Found Context="routeData">
+            <AuthorizeRouteView RouteData="routeData" DefaultLayout="typeof(MainLayout)">
+                <NotAuthorized>
+                    <RedirectToLogin AuthUrl="/connect/login" />
+                </NotAuthorized>
+            </AuthorizeRouteView>
+            <FocusOnNavigate RouteData="routeData" Selector="h1" />
+        </Found>
+    </Router>
+</CascadingAuthenticationState>
+
+@code {
+    public System.Reflection.Assembly[] Assemblies = [
+        typeof(SoftMax.Core._Imports).Assembly,
+        typeof(SoftMax.Accounting.Pages._Imports).Assembly
+    ];
+}

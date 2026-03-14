@@ -1,0 +1,154 @@
+@page "/connect/login"
+@layout LoginLayout
+@inherits ComponentBase
+@attribute [Public]
+@attribute [ExcludeFromInteractiveRouting]
+
+<div class="login-page">
+    <div class="login-container">
+        <div class="login-card mud-paper mud-elevation-25 mud-paper-outlined">
+
+            <div class="login-header">
+                <MudImage Class="app-logo" Src="@($"/app/manifest/web-app-manifest-192x192.png?v={AppVersion}")" />
+                <h2 class="login-title">@RepositoryService._stringLocalizer["Welcome Back"].Value</h2>
+            </div>
+
+            <EditForm EditContext="editContext" method="post" OnSubmit="OnValidSubmitAsync" FormName="login" id="login" class="login-form">
+                <DataAnnotationsValidator />
+
+                <div class="input-group">
+                    <MudStaticTextField @bind-Value="@Input.UserName"
+                                        Adornment="Adornment.Start"
+                                        AdornmentIcon="@Icons.Material.Filled.Person"
+                                        autocomplete="username webauthn"
+                                        Margin="Margin.Dense"
+                                        Variant="Variant.Outlined"
+                                        Label="@RepositoryService._stringLocalizer["Username"].Value"
+                                        Placeholder="@RepositoryService._stringLocalizer["Enter your username"]"
+                                        For="() => Input.UserName"
+                                        Class="login-input"
+                                        FullWidth="true" />
+                </div>
+
+                <div class="input-group">
+                    <MudStaticTextField @bind-Value="@Input.Password"
+                                        autocomplete="current-password"
+                                        Variant="Variant.Outlined"
+                                        Margin="Margin.Dense"
+                                        Label="@RepositoryService._stringLocalizer["Password"].Value"
+                                        Placeholder="@RepositoryService._stringLocalizer["Enter your password"]"
+                                        Adornment="Adornment.Start"
+                                        AdornmentIcon="@Icons.Material.Filled.Lock"
+                                        AdornmentClickFunction="showPassword"
+                                        InputType="InputType.Password"
+                                        For="() => Input.Password"
+                                        Class="login-input"
+                                        FullWidth="true" />
+                </div>
+
+                <div class="form-options gap-2">
+                    <MudStaticSwitch @bind-Value="Input.RememberMe"
+                                     Color="Color.Info"
+                                     Label="@RepositoryService._stringLocalizer["Remember Me"].Value"
+                                     Class="remember-switch" />
+                    @if (!string.IsNullOrEmpty(ForgotPasswordUrl))
+                    {
+                        <MudLink Href="@ForgotPasswordUrl" Class="forgot-password">
+                            @RepositoryService._stringLocalizer["Forgot Password?"].Value
+                        </MudLink>
+                    }
+                </div>
+
+                <MudStaticButton FormAction="FormAction.Submit"
+                                 Color="Color.Info"
+                                 DropShadow=false
+                                 Variant="Variant.Filled"
+                                 Class="login-button mb-0 rounded-pill"
+                                 FullWidth="true">
+                    @(RepositoryService._stringLocalizer["Sign In"].Value)
+                </MudStaticButton>
+
+                <div class="external-login-section">
+                    <div class="divider">
+                        <span class="divider-text">@RepositoryService._stringLocalizer["Or continue with"].Value</span>
+                    </div>
+
+                    <div class="external-providers">
+                        <div id="external-login-notification" class="alert alert-info external-login-notification mud-theme-info" style="display: none; margin-bottom: 1rem;" role="alert">
+                            <strong>@RepositoryService._stringLocalizer["Coming Soon!"].Value</strong>
+                            @RepositoryService._stringLocalizer["Login with KRGPass will be available soon."].Value
+                        </div>
+
+                        @if (PasskeyEnabled)
+                        {
+                            <PasskeySubmit Operation="PasskeyOperation.Request" Name="Input.Passkey" EmailName="Input.UserName">
+                                @RepositoryService._stringLocalizer["Passkey"].Value
+                            </PasskeySubmit>
+                        }
+
+                        @if (ExternalLogins != null && ExternalLogins.Any())
+                        {
+                            @foreach (var provider in ExternalLogins)
+                            {
+                                <a href="@GetChallengeUrl(provider.Name)"
+                                   class="mud-button-root mud-button mud-button-outlined mud-button-outlined-default mud-button-outlined-size-medium mud-width-full mud-ripple external-provider-button rounded-pill"
+                                   style="text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                                    <img src="/app/manifest/@(provider.Name).png?v=@AppVersion" style="height: 20px;" class="rounded-pill" />
+                                    <span>@provider.DisplayName</span>
+                                </a>
+                            }
+                        }
+                    </div>
+                </div>
+            </EditForm>
+
+          
+
+            @if (!string.IsNullOrEmpty(SignupUrl))
+            {
+                <div class="signup-section">
+                    <span class="signup-text">@RepositoryService._stringLocalizer["New on our platform?"].Value</span>
+                    <MudLink Href="@SignupUrl" Class="signup-link">
+                        @RepositoryService._stringLocalizer["Create an account"].Value
+                    </MudLink>
+                </div>
+            }
+
+            @if (Languages != null)
+            {
+                <div class="language-section">
+                    <select class="language-selector rounded-pill" onchange="ChangeCulture(this)" data-url="@redirectUri">
+                        @foreach (var culture in Languages)
+                        {
+                            if (culture.Extra1.ToLower() == currentCulture.ToLower())
+                            {
+                                <option value="@culture.Extra1.ToLower()" selected="selected">@culture.Text</option>
+                            }
+                            else
+                            {
+                                <option value="@culture.Extra1.ToLower()">@culture.Text</option>
+                            }
+                        }
+                    </select>
+                </div>
+            }
+
+            @if (!string.IsNullOrEmpty(errorMessage))
+            {
+                <div class="error-message">
+                    <StatusMessage Message="@errorMessage" />
+                </div>
+            }
+
+            @{
+                var LoginFooterTemplate = Environment.GetEnvironmentVariable("LOGIN_FOOTER_TEMPLATE");
+                if (!string.IsNullOrEmpty(LoginFooterTemplate))
+                {
+                    <div class="footer-section">
+                        @((MarkupString)LoginFooterTemplate)
+                    </div>
+                }
+            }
+        </div>
+    </div>
+</div>

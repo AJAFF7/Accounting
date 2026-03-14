@@ -1,0 +1,26 @@
+@page "/connect/endsession"
+@layout LoginLayout
+@attribute [Public]
+@attribute [ExcludeFromInteractiveRouting]
+
+<div class="login-page">
+    <div class="login-container">
+        <div class="login-card">
+            <div class="login-header">
+                <MudImage Class="app-logo" Src="@($"/app/manifest/web-app-manifest-192x192.png?v={AppVersion}")" />
+                <h2 class="login-title">@RepositoryService._stringLocalizer["Logging Out"].Value</h2>
+            </div>
+
+            <div style="text-align: center; padding: 2rem 0;">
+                <MudProgressCircular Color="Color.Info" Size="Size.Large" Indeterminate="true" />
+                <MudText Typo="Typo.body1" Class="mt-4">
+                    @RepositoryService._stringLocalizer["Please wait while we log you out..."].Value
+                </MudText>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private string AppVersion => System.Reflection.Assembly.GetEntryAssembly()?.GetName().Version?.ToString() ?? "1.0.0";
+}
