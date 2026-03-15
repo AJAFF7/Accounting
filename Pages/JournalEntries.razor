@@ -1,0 +1,182 @@
+@page "/Accounting/JournalEntries"
+@attribute [Authorize]
+@using SoftMax.Accounting.Repositories
+@inject JournalEntryRepository Repository
+@inject ChartOfAccountRepository AccountRepository
+@inject IDialogService DialogService
+
+<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-4">
+    <MudText Typo="Typo.h4" Class="mb-4">Journal Entries</MudText>
+
+    <MudPaper Class="pa-4 mb-4">
+        <MudGrid>
+            <MudItem xs="12" md="3">
+                <MudButton Variant="Variant.Filled" 
+                           Color="Color.Primary" 
+                           StartIcon="@Icons.Material.Filled.Add"
+                           OnClick="OpenAddDialog">
+                    Create Journal Entry
+                </MudButton>
+            </MudItem>
+            <MudItem xs="12" md="3">
+                <MudTextField @bind-Value="searchText" 
+                              Label="Search" 
+                              Variant="Variant.Outlined" 
+                              Adornment="Adornment.End"
+                              AdornmentIcon="@Icons.Material.Filled.Search"
+                              Margin="Margin.Dense"
+                              Immediate="true"
+                              DebounceInterval="300"
+                              OnDebounceIntervalElapsed="FilterEntries" />
+            </MudItem>
+            <MudItem xs="12" md="3">
+                <MudSelect @bind-Value="statusFilter" 
+                          Label="Status" 
+                          Variant="Variant.Outlined"
+                          Margin="Margin.Dense"
+                          T="string">
+                    <MudSelectItem Value="@("All")">All</MudSelectItem>
+                    <MudSelectItem Value="@("Draft")">Draft</MudSelectItem>
+                    <MudSelectItem Value="@("Posted")">Posted</MudSelectItem>
+                </MudSelect>
+            </MudItem>
+            <MudItem xs="12" md="3">
+                <MudDateRangePicker @bind-DateRange="dateRange" 
+                                   Label="Date Range"
+                                   Variant="Variant.Outlined"
+                                   Margin="Margin.Dense"
+                                   Clearable="true" />
+            </MudItem>
+        </MudGrid>
+    </MudPaper>
+
+    <MudPaper Class="pa-4">
+        <MudTable Items="@filteredEntries" 
+                  Hover="true" 
+                  Breakpoint="Breakpoint.Sm" 
+                  Loading="@loading"
+                  Dense="true">
+            <HeaderContent>
+                <MudTh>Date</MudTh>
+                <MudTh>Reference</MudTh>
+                <MudTh>Description</MudTh>
+                <MudTh>Debit Account</MudTh>
+                <MudTh>Credit Account</MudTh>
+                <MudTh>Amount</MudTh>
+                <MudTh>Status</MudTh>
+                <MudTh>Actions</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd DataLabel="Date">@context.Date.ToString("yyyy-MM-dd")</MudTd>
+                <MudTd DataLabel="Reference">@context.ReferenceNumber</MudTd>
+                <MudTd DataLabel="Description">@context.Description</MudTd>
+                <MudTd DataLabel="Debit">@context.DebitAccountName</MudTd>
+                <MudTd DataLabel="Credit">@context.CreditAccountName</MudTd>
+                <MudTd DataLabel="Amount">@context.Amount.ToString("N2")</MudTd>
+                <MudTd DataLabel="Status">
+                    <MudChip T="string" Size="Size.Small" 
+                             Color="@(context.IsPosted ? Color.Success : Color.Warning)">
+                        @(context.IsPosted ? "Posted" : "Draft")
+                    </MudChip>
+                </MudTd>
+                <MudTd DataLabel="Actions">
+                    @if (!context.IsPosted)
+                    {
+                        <MudIconButton Icon="@Icons.Material.Filled.PostAdd" 
+                                       Size="Size.Small" 
+                                       Color="Color.Success"
+                                       OnClick="@(() => ConfirmPostEntry(context.Id.Value))"
+                                       Title="Post Entry" />
+                        <MudIconButton Icon="@Icons.Material.Filled.Edit" 
+                                       Size="Size.Small" 
+                                       Color="Color.Primary"
+                                       OnClick="@(() => OpenEditDialog(context))" />
+                        <MudIconButton Icon="@Icons.Material.Filled.Delete" 
+                                       Size="Size.Small" 
+                                       Color="Color.Error"
+                                       OnClick="@(() => ConfirmDeleteEntry(context.Id.Value))" />
+                    }
+                    else
+                    {
+                        <MudText Typo="Typo.caption">Posted @context.PostedDate?.ToString("yyyy-MM-dd")</MudText>
+                    }
+                </MudTd>
+            </RowTemplate>
+        </MudTable>
+    </MudPaper>
+</MudContainer>
+
+<MudDialog @bind-Visible="dialogVisible" Options="dialogOptions">
+    <TitleContent>
+        <MudText Typo="Typo.h6">@dialogTitle</MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudForm @ref="form" @bind-IsValid="@formValid">
+            <MudGrid>
+                <MudItem xs="12" sm="6">
+                    <MudDatePicker @bind-Date="modelDate" 
+                                   Label="Date" 
+                                   Required="true"
+                                   Variant="Variant.Outlined"
+                                   Margin="Margin.Dense" />
+                </MudItem>
+                <MudItem xs="12" sm="6">
+                    <MudTextField @bind-Value="model.ReferenceNumber" 
+                                  Label="Reference Number" 
+                                  Variant="Variant.Outlined"
+                                  Margin="Margin.Dense" />
+                </MudItem>
+                <MudItem xs="12">
+                    <MudTextField @bind-Value="model.Description" 
+                                  Label="Description" 
+                                  Required="true"
+                                  Lines="2"
+                                  Variant="Variant.Outlined"
+                                  Margin="Margin.Dense" />
+                </MudItem>
+                <MudItem xs="12" sm="6">
+                    <MudSelect @bind-Value="model.DebitAccountIdRef" 
+                               Label="Debit Account" 
+                               Required="true"
+                               Variant="Variant.Outlined"
+                               Margin="Margin.Dense">
+                        @foreach (var account in accounts)
+                        {
+                            <MudSelectItem Value="@account.Id.Value">[@account.Code] @account.Name</MudSelectItem>
+                        }
+                    </MudSelect>
+                </MudItem>
+                <MudItem xs="12" sm="6">
+                    <MudSelect @bind-Value="model.CreditAccountIdRef" 
+                               Label="Credit Account" 
+                               Required="true"
+                               Variant="Variant.Outlined"
+                               Margin="Margin.Dense">
+                        @foreach (var account in accounts)
+                        {
+                            <MudSelectItem Value="@account.Id.Value">[@account.Code] @account.Name</MudSelectItem>
+                        }
+                    </MudSelect>
+                </MudItem>
+                <MudItem xs="12">
+                    <MudNumericField @bind-Value="model.Amount" 
+                                     Label="Amount" 
+                                     Required="true"
+                                     Min="0.01m"
+                                     Format="N2"
+                                     Variant="Variant.Outlined"
+                                     Margin="Margin.Dense" />
+                </MudItem>
+            </MudGrid>
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="CloseDialog">Cancel</MudButton>
+        <MudButton Color="Color.Primary" 
+                   Variant="Variant.Filled" 
+                   OnClick="SaveEntry"
+                   Disabled="@(!formValid)">
+            Save
+        </MudButton>
+    </DialogActions>
+</MudDialog>

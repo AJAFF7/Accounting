@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Serilog;
 using SoftMax.Accounting;
 using SoftMax.Accounting.Components;
+using SoftMax.Accounting.Repositories;
 using SoftMax.Core;
 using SoftMax.Core.Services;
 using System.Reflection;
@@ -42,6 +43,9 @@ try
     builder.Services.AddControllers();
     builder.Services.AddHttpClient();
 
+    // Add Antiforgery services
+    builder.Services.AddAntiforgery();
+
     await builder.Services.AddRedisServicesAsync();
 
     // Configure database and related services
@@ -58,6 +62,11 @@ try
         .AddConnectionTrackingServices()
         .AddRepositoryServices()
         .AddRequestMonitoringServices();
+
+    // Register accounting repositories
+    builder.Services.AddScoped<ChartOfAccountRepository>();
+    builder.Services.AddScoped<JournalEntryRepository>();
+    builder.Services.AddScoped<GeneralLedgerRepository>();
 
     // Configure API authorization policies
     //Log.Information("Configuring API authorization policies");
@@ -110,7 +119,7 @@ try
         }
 
         var currentDirectory = Directory.GetCurrentDirectory();
-        var sqlScriptsPath = Path.Combine(currentDirectory, "..", "SoftMax.Students", "SqlScripts");
+        var sqlScriptsPath = Path.Combine(currentDirectory, "SqlScripts");
         sqlScriptsPath = Path.GetFullPath(sqlScriptsPath);
 
         if (Directory.Exists(sqlScriptsPath))
@@ -173,6 +182,9 @@ try
 
     // Configure middleware and endpoints
     app.ConfigureMiddleware().ConfigureRazorComponents<App>(typeof(AdminDbContext).Assembly).ConfigureEndpoints();
+
+    // Add Antiforgery middleware
+    app.UseAntiforgery();
 
     // Map API Controllers
     app.MapControllers();

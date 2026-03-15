@@ -1,0 +1,110 @@
+@page "/Accounting/general-ledger"
+@attribute [Authorize]
+@using SoftMax.Accounting.Repositories
+@inject GeneralLedgerRepository Repository
+@inject ChartOfAccountRepository AccountRepository
+@inject NavigationManager NavigationManager
+
+<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-4">
+    <MudText Typo="Typo.h4" Class="mb-4">General Ledger</MudText>
+
+    <MudPaper Class="pa-4 mb-4">
+        <MudGrid>
+            <MudItem xs="12" md="4">
+                <MudSelect T="Guid?" 
+                          Label="Select Account" 
+                          @bind-Value="selectedAccountId"
+                          Variant="Variant.Outlined"
+                          AnchorOrigin="Origin.BottomCenter">
+                    <MudSelectItem T="Guid?" Value="@((Guid?)null)">-- Select Account --</MudSelectItem>
+                    @foreach (var account in accounts)
+                    {
+                        <MudSelectItem T="Guid?" Value="@account.Id">
+                            @account.Code - @account.Name
+                        </MudSelectItem>
+                    }
+                </MudSelect>
+            </MudItem>
+            <MudItem xs="12" md="3">
+                <MudDatePicker Label="Start Date" 
+                              @bind-Date="startDate" 
+                              Variant="Variant.Outlined" 
+                              Clearable="true" />
+            </MudItem>
+            <MudItem xs="12" md="3">
+                <MudDatePicker Label="End Date" 
+                              @bind-Date="endDate" 
+                              Variant="Variant.Outlined" 
+                              Clearable="true" />
+            </MudItem>
+            <MudItem xs="12" md="2" Class="d-flex align-end">
+                <MudButton Variant="Variant.Filled" 
+                          Color="Color.Primary" 
+                          FullWidth="true"
+                          OnClick="LoadLedger"
+                          Disabled="@(selectedAccountId == null)">
+                    Load
+                </MudButton>
+            </MudItem>
+        </MudGrid>
+    </MudPaper>
+
+    @if (selectedAccountId != null && ledgerEntries != null)
+    {
+        <MudPaper Class="pa-4">
+            <MudText Typo="Typo.h6" Class="mb-3">
+                @selectedAccount?.Code - @selectedAccount?.Name
+            </MudText>
+            
+            <MudTable Items="@ledgerEntries" 
+                      Hover="true" 
+                      Breakpoint="Breakpoint.Sm" 
+                      Loading="@loading"
+                      Dense="true">
+                <HeaderContent>
+                    <MudTh>Date</MudTh>
+                    <MudTh>Reference</MudTh>
+                    <MudTh>Description</MudTh>
+                    <MudTh Style="text-align: right">Debit</MudTh>
+                    <MudTh Style="text-align: right">Credit</MudTh>
+                    <MudTh Style="text-align: right">Balance</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd DataLabel="Date">@context.Date.ToString("yyyy-MM-dd")</MudTd>
+                    <MudTd DataLabel="Reference">@context.ReferenceNumber</MudTd>
+                    <MudTd DataLabel="Description">@context.Description</MudTd>
+                    <MudTd DataLabel="Debit" Style="text-align: right">
+                        @(context.Debit > 0 ? context.Debit.ToString("N2") : "")
+                    </MudTd>
+                    <MudTd DataLabel="Credit" Style="text-align: right">
+                        @(context.Credit > 0 ? context.Credit.ToString("N2") : "")
+                    </MudTd>
+                    <MudTd DataLabel="Balance" Style="text-align: right; font-weight: bold">
+                        @context.Balance.ToString("N2")
+                    </MudTd>
+                </RowTemplate>
+                <FooterContent>
+                    <MudTd colspan="3" Style="font-weight: bold">Totals:</MudTd>
+                    <MudTd Style="text-align: right; font-weight: bold">
+                        @ledgerEntries.Sum(x => x.Debit).ToString("N2")
+                    </MudTd>
+                    <MudTd Style="text-align: right; font-weight: bold">
+                        @ledgerEntries.Sum(x => x.Credit).ToString("N2")
+                    </MudTd>
+                    <MudTd Style="text-align: right; font-weight: bold">
+                        @(ledgerEntries.LastOrDefault()?.Balance.ToString("N2") ?? "0.00")
+                    </MudTd>
+                </FooterContent>
+            </MudTable>
+        </MudPaper>
+    }
+    else if (selectedAccountId == null)
+    {
+        <MudPaper Class="pa-8 text-center">
+            <MudIcon Icon="@Icons.Material.Filled.AccountBalance" Size="Size.Large" Color="Color.Secondary" />
+            <MudText Typo="Typo.h6" Color="Color.Secondary" Class="mt-2">
+                Select an account to view its ledger
+            </MudText>
+        </MudPaper>
+    }
+</MudContainer>

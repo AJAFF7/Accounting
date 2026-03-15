@@ -1,0 +1,162 @@
+@page "/Accounting/"
+@page "/Accounting/dashboard"
+@attribute [Authorize]
+
+<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-4">
+    <MudText Typo="Typo.h3" Class="mb-4">Accounting Dashboard</MudText>
+
+    <MudGrid>
+        <MudItem xs="12" sm="6" md="3">
+            <MudCard Elevation="2" Class="pa-4" Style="cursor: pointer;" 
+                     OnClick="@(() => NavigateTo("/Accounting/chart-of-accounts"))">
+                <MudCardContent>
+                    <div class="d-flex align-center">
+                        <MudIcon Icon="@Icons.Material.Filled.AccountBalance" 
+                                 Color="Color.Primary" 
+                                 Size="Size.Large" 
+                                 Class="mr-3" />
+                        <div>
+                            <MudText Typo="Typo.h6">Chart of Accounts</MudText>
+                            <MudText Typo="Typo.body2" Color="Color.Secondary">Manage accounts</MudText>
+                        </div>
+                    </div>
+                </MudCardContent>
+            </MudCard>
+        </MudItem>
+
+        <MudItem xs="12" sm="6" md="3">
+            <MudCard Elevation="2" Class="pa-4" Style="cursor: pointer;" 
+                     OnClick="@(() => NavigateTo("/Accounting/journal-entries"))">
+                <MudCardContent>
+                    <div class="d-flex align-center">
+                        <MudIcon Icon="@Icons.Material.Filled.Receipt" 
+                                 Color="Color.Success" 
+                                 Size="Size.Large" 
+                                 Class="mr-3"/>
+                        <div>
+                            <MudText Typo="Typo.h6">Journal Entries</MudText>
+                            <MudText Typo="Typo.body2" Color="Color.Secondary">Record transactions</MudText>
+                        </div>
+                    </div>
+                </MudCardContent>
+            </MudCard>
+        </MudItem>
+
+        <MudItem xs="12" sm="6" md="3">
+            <MudCard Elevation="2" Class="pa-4" Style="cursor: pointer;" 
+                     OnClick="@(() => NavigateTo("/Accounting/general-ledger"))">
+                <MudCardContent>
+                    <div class="d-flex align-center">
+                        <MudIcon Icon="@Icons.Material.Filled.Book" 
+                                 Color="Color.Info" 
+                                 Size="Size.Large" 
+                                 Class="mr-3" />
+                        <div>
+                            <MudText Typo="Typo.h6">General Ledger</MudText>
+                            <MudText Typo="Typo.body2" Color="Color.Secondary">Account activity</MudText>
+                        </div>
+                    </div>
+                </MudCardContent>
+            </MudCard>
+        </MudItem>
+
+        <MudItem xs="12" sm="6" md="3">
+            <MudCard Elevation="2" Class="pa-4" Style="cursor: pointer;" 
+                     OnClick="@(() => NavigateTo("/Accounting/trial-balance"))">
+                <MudCardContent>
+                    <div class="d-flex align-center">
+                        <MudIcon Icon="@Icons.Material.Filled.Assessment" 
+                                 Color="Color.Warning" 
+                                 Size="Size.Large" 
+                                 Class="mr-3" />
+                        <div>
+                            <MudText Typo="Typo.h6">Trial Balance</MudText>
+                            <MudText Typo="Typo.body2" Color="Color.Secondary">Financial report</MudText>
+                        </div>
+                    </div>
+                </MudCardContent>
+            </MudCard>
+        </MudItem>
+    </MudGrid>
+
+    <MudGrid Class="mt-6">
+        <MudItem xs="12" md="6">
+            <MudCard Elevation="2">
+                <MudCardHeader>
+                    <CardHeaderContent>
+                        <MudText Typo="Typo.h6">Accounts Payable</MudText>
+                    </CardHeaderContent>
+                </MudCardHeader>
+                <MudCardContent>
+                    <MudText Typo="Typo.body2" Color="Color.Secondary">Vendor invoices and payments</MudText>
+                    <MudText Typo="Typo.caption" Class="mt-2">Coming soon...</MudText>
+                </MudCardContent>
+            </MudCard>
+        </MudItem>
+
+        <MudItem xs="12" md="6">
+            <MudCard Elevation="2">
+                <MudCardHeader>
+                    <CardHeaderContent>
+                        <MudText Typo="Typo.h6">Accounts Receivable</MudText>
+                    </CardHeaderContent>
+                </MudCardHeader>
+                <MudCardContent>
+                    <MudText Typo="Typo.body2" Color="Color.Secondary">Customer invoices and receipts</MudText>
+                    <MudText Typo="Typo.caption" Class="mt-2">Coming soon...</MudText>
+                </MudCardContent>
+            </MudCard>
+        </MudItem>
+
+        <MudItem xs="12" md="6">
+            <MudCard Elevation="2">
+                <MudCardHeader>
+                    <CardHeaderContent>
+                        <MudText Typo="Typo.h6">Fixed Assets</MudText>
+                    </CardHeaderContent>
+                </MudCardHeader>
+                <MudCardContent>
+                    <MudText Typo="Typo.body2" Color="Color.Secondary">Asset tracking and depreciation</MudText>
+                    <MudText Typo="Typo.caption" Class="mt-2">Coming soon...</MudText>
+                </MudCardContent>
+            </MudCard>
+        </MudItem>
+
+        <MudItem xs="12" md="6">
+            <MudCard Elevation="2">
+                <MudCardHeader>
+                    <CardHeaderContent>
+                        <MudText Typo="Typo.h6">Quick Stats</MudText>
+                    </CardHeaderContent>
+                </MudCardHeader>
+                <MudCardContent>
+                    <MudSimpleTable Dense="true">
+                        <tbody>
+                            <tr>
+                                <td>Total Accounts</td>
+                                <td class="text-right"><strong>9</strong></td>
+                            </tr>
+                            <tr>
+                                <td>Journal Entries</td>
+                                <td class="text-right"><strong>0</strong></td>
+                            </tr>
+                            <tr>
+                                <td>Posted Transactions</td>
+                                <td class="text-right"><strong>0</strong></td>
+                            </tr>
+                        </tbody>
+                    </MudSimpleTable>
+                </MudCardContent>
+            </MudCard>
+        </MudItem>
+    </MudGrid>
+</MudContainer>
+
+@code {
+    [Inject] private NavigationManager Navigation { get; set; }
+
+    private void NavigateTo(string url)
+    {
+        Navigation.NavigateTo(url);
+    }
+}

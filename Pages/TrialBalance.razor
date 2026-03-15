@@ -1,0 +1,111 @@
+@page "/Accounting/trial-balance"
+@attribute [Authorize]
+@using SoftMax.Accounting.Repositories
+@inject GeneralLedgerRepository Repository
+
+<MudContainer MaxWidth="MaxWidth.Large" Class="mt-4">
+    <MudText Typo="Typo.h4" Class="mb-4">Trial Balance</MudText>
+
+    <MudPaper Class="pa-4 mb-4">
+        <MudGrid>
+            <MudItem xs="12" md="6">
+                <MudDatePicker Label="As of Date" 
+                              @bind-Date="asOfDate" 
+                              Variant="Variant.Outlined" />
+            </MudItem>
+            <MudItem xs="12" md="3" Class="d-flex align-end">
+                <MudButton Variant="Variant.Filled" 
+                          Color="Color.Primary" 
+                          FullWidth="true"
+                          OnClick="LoadReport">
+                    Generate Report
+                </MudButton>
+            </MudItem>
+            <MudItem xs="12" md="3" Class="d-flex align-end">
+                <MudButton Variant="Variant.Outlined" 
+                          Color="Color.Secondary" 
+                          FullWidth="true"
+                          Disabled="@(report == null)"
+                          StartIcon="@Icons.Material.Filled.Download">
+                    Export
+                </MudButton>
+            </MudItem>
+        </MudGrid>
+    </MudPaper>
+
+    @if (report != null)
+    {
+        <MudPaper Class="pa-4">
+            <div class="d-flex justify-space-between align-center mb-4">
+                <MudText Typo="Typo.h6">
+                    As of @report.AsOfDate.ToString("MMMM dd, yyyy")
+                </MudText>
+                @if (report.IsBalanced)
+                {
+                    <MudChip T="string" Color="Color.Success" Size="Size.Small">
+                        ✓ Balanced
+                    </MudChip>
+                }
+                else
+                {
+                    <MudChip T="string" Color="Color.Error" Size="Size.Small">
+                        ⚠ Not Balanced
+                    </MudChip>
+                }
+            </div>
+            
+            <MudTable Items="@report.Accounts" 
+                      Hover="true" 
+                      Breakpoint="Breakpoint.Sm" 
+                      Loading="@loading"
+                      Dense="true">
+                <HeaderContent>
+                    <MudTh>Account Code</MudTh>
+                    <MudTh>Account Name</MudTh>
+                    <MudTh>Type</MudTh>
+                    <MudTh Style="text-align: right">Debit</MudTh>
+                    <MudTh Style="text-align: right">Credit</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd DataLabel="Code">@context.AccountCode</MudTd>
+                    <MudTd DataLabel="Name">@context.AccountName</MudTd>
+                    <MudTd DataLabel="Type">
+                        <MudChip T="string" Size="Size.Small">@context.AccountType</MudChip>
+                    </MudTd>
+                    <MudTd DataLabel="Debit" Style="text-align: right">
+                        @(context.TotalDebit > 0 ? context.TotalDebit.ToString("N2") : "")
+                    </MudTd>
+                    <MudTd DataLabel="Credit" Style="text-align: right">
+                        @(context.TotalCredit > 0 ? context.TotalCredit.ToString("N2") : "")
+                    </MudTd>
+                </RowTemplate>
+                <FooterContent>
+                    <MudTd colspan="3" Style="font-weight: bold; font-size: 1.1em">Grand Total:</MudTd>
+                    <MudTd Style="text-align: right; font-weight: bold; font-size: 1.1em; border-top: 2px solid #000">
+                        @report.TotalDebit.ToString("N2")
+                    </MudTd>
+                    <MudTd Style="text-align: right; font-weight: bold; font-size: 1.1em; border-top: 2px solid #000">
+                        @report.TotalCredit.ToString("N2")
+                    </MudTd>
+                </FooterContent>
+            </MudTable>
+
+            @if (!report.IsBalanced)
+            {
+                <MudAlert Severity="Severity.Warning" Class="mt-4">
+                    <strong>Warning:</strong> Trial balance does not balance. 
+                    Difference: @Math.Abs(report.TotalDebit - report.TotalCredit).ToString("N2")
+                </MudAlert>
+            }
+        </MudPaper>
+    }
+    else
+    {
+        <MudPaper Class="pa-8 text-center">
+            <MudIcon Icon="@Icons.Material.Filled.Assessment" Size="Size.Large" Color="Color.Secondary" />
+            <MudText Typo="Typo.h6" Color="Color.Secondary" Class="mt-2">
+                Select a date and click "Generate Report" to view the trial balance
+            </MudText>
+        </MudPaper>
+    }
+</MudContainer>

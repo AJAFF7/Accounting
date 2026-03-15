@@ -16,6 +16,7 @@ using System.Reflection;
 
 namespace SoftMax.Accounting.Components.Pages;
 
+[Microsoft.AspNetCore.Mvc.IgnoreAntiforgeryToken]
 public partial class Login : ComponentBase
 {
     [Inject] private SignInManager<User> SignInManager { get; set; }

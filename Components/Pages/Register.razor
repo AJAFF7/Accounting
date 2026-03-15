@@ -1,0 +1,129 @@
+@page "/connect/register"
+@layout LoginLayout
+@inherits ComponentBase
+@attribute [Public]
+@attribute [ExcludeFromInteractiveRouting]
+
+<div class="login-page">
+    <div class="login-container">
+        <div class="login-card mud-paper mud-elevation-25 mud-paper-outlined">
+
+            <div class="login-header">
+                <MudImage Class="app-logo" Src="@($"/app/manifest/web-app-manifest-192x192.png?v={AppVersion}")" />
+                <h2 class="login-title">@RepositoryService._stringLocalizer["Create Account"].Value</h2>
+                <p class="login-subtitle">@RepositoryService._stringLocalizer["Sign up to get started"].Value</p>
+            </div>
+
+            <EditForm EditContext="editContext" method="post" OnSubmit="OnValidSubmitAsync" FormName="register" id="register" class="login-form">
+                <DataAnnotationsValidator />
+
+                <div class="input-group">
+                    <MudStaticTextField @bind-Value="@Input.UserName"
+                                        Adornment="Adornment.Start"
+                                        AdornmentIcon="@Icons.Material.Filled.Person"
+                                        autocomplete="username"
+                                        Margin="Margin.Dense"
+                                        Variant="Variant.Outlined"
+                                        Label="@RepositoryService._stringLocalizer["Username"].Value"
+                                        Placeholder="@RepositoryService._stringLocalizer["Enter username"]"
+                                        For="() => Input.UserName"
+                                        Class="login-input"
+                                        FullWidth="true" />
+                </div>
+
+                <div class="input-group">
+                    <MudStaticTextField @bind-Value="@Input.Email"
+                                        Adornment="Adornment.Start"
+                                        AdornmentIcon="@Icons.Material.Filled.Email"
+                                        autocomplete="email"
+                                        Margin="Margin.Dense"
+                                        Variant="Variant.Outlined"
+                                        Label="@RepositoryService._stringLocalizer["Email"].Value"
+                                        Placeholder="@RepositoryService._stringLocalizer["Enter email address"]"
+                                        For="() => Input.Email"
+                                        Class="login-input"
+                                        FullWidth="true" />
+                </div>
+
+                <div class="input-group">
+                    <MudStaticTextField @bind-Value="@Input.DisplayName"
+                                        Adornment="Adornment.Start"
+                                        AdornmentIcon="@Icons.Material.Filled.Badge"
+                                        autocomplete="name"
+                                        Margin="Margin.Dense"
+                                        Variant="Variant.Outlined"
+                                        Label="@RepositoryService._stringLocalizer["Full Name"].Value"
+                                        Placeholder="@RepositoryService._stringLocalizer["Enter full name"]"
+                                        For="() => Input.DisplayName"
+                                        Class="login-input"
+                                        FullWidth="true" />
+                </div>
+
+                <div class="input-group">
+                    <MudStaticTextField @bind-Value="@Input.Password"
+                                        autocomplete="new-password"
+                                        Variant="Variant.Outlined"
+                                        Margin="Margin.Dense"
+                                        Label="@RepositoryService._stringLocalizer["Password"].Value"
+                                        Placeholder="@RepositoryService._stringLocalizer["Enter password"]"
+                                        Adornment="Adornment.Start"
+                                        AdornmentIcon="@Icons.Material.Filled.Lock"
+                                        InputType="InputType.Password"
+                                        For="() => Input.Password"
+                                        Class="login-input"
+                                        FullWidth="true" />
+                </div>
+
+                <div class="input-group">
+                    <MudStaticTextField @bind-Value="@Input.ConfirmPassword"
+                                        autocomplete="new-password"
+                                        Variant="Variant.Outlined"
+                                        Margin="Margin.Dense"
+                                        Label="@RepositoryService._stringLocalizer["Confirm Password"].Value"
+                                        Placeholder="@RepositoryService._stringLocalizer["Re-enter password"]"
+                                        Adornment="Adornment.Start"
+                                        AdornmentIcon="@Icons.Material.Filled.Lock"
+                                        InputType="InputType.Password"
+                                        For="() => Input.ConfirmPassword"
+                                        Class="login-input"
+                                        FullWidth="true" />
+                </div>
+
+                <MudStaticButton FormAction="FormAction.Submit"
+                                 Color="Color.Success"
+                                 DropShadow=false
+                                 Variant="Variant.Filled"
+                                 Class="login-button mb-0 rounded-pill"
+                                 FullWidth="true"
+                                 Disabled="@isLoading">
+                    @if (isLoading)
+                    {
+                        <MudProgressCircular Class="mr-2" Size="Size.Small" Indeterminate="true" />
+                    }
+                    @(RepositoryService._stringLocalizer["Create Account"].Value)
+                </MudStaticButton>
+            </EditForm>
+
+            <div class="signup-section">
+                <span class="signup-text">@RepositoryService._stringLocalizer["Already have an account?"].Value</span>
+                <MudLink Href="/connect/login" Class="signup-link">
+                    @RepositoryService._stringLocalizer["Sign In"].Value
+                </MudLink>
+            </div>
+
+            @if (!string.IsNullOrEmpty(errorMessage))
+            {
+                <div class="error-message mt-3">
+                    <StatusMessage Message="@errorMessage" />
+                </div>
+            }
+
+            @if (!string.IsNullOrEmpty(successMessage))
+            {
+                <div class="success-message mt-3">
+                    <MudAlert Severity="Severity.Success">@successMessage</MudAlert>
+                </div>
+            }
+        </div>
+    </div>
+</div>

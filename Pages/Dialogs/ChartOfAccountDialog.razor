@@ -1,0 +1,60 @@
+@inherits SoftMaxComponent
+<SoftMaxDialog>
+    <Content>
+        <MudForm @ref=Form Model=Model Class=my-3>
+            <MudGrid Spacing=2>
+                <SoftMaxGridItem md="6">
+                    <SoftMaxTextBox @bind-Value=Model.Code Label="Account Code" Required=true RequiredError="Account code is required" />
+                </SoftMaxGridItem>
+                <SoftMaxGridItem md="6">
+                    <SoftMaxDropDownList @bind-Value=Model.Type
+                                         Label="Account Type"
+                                         Required=true
+                                         RequiredError="Account type is required"
+                                         ItemCollection=AccountTypes />
+                </SoftMaxGridItem>
+                <SoftMaxGridItem md="12">
+                    <SoftMaxTextBox @bind-Value=Model.Name Label="Account Name" Required=true RequiredError="Account name is required" />
+                </SoftMaxGridItem>
+                <SoftMaxGridItem md="12">
+                    <SoftMaxTextBox @bind-Value=Model.Description Label="Description" Lines=3 />
+                </SoftMaxGridItem>
+                <SoftMaxGridItem md="12">
+                    <MudSwitch @bind-Value=Model.IsActive Label="Active" Color="Color.Primary" />
+                </SoftMaxGridItem>
+            </MudGrid>
+        </MudForm>
+    </Content>
+
+    <Actions>
+        <MudButton Loading=Repository.ModelProcessing
+                   OnClick="async e => await Repository.SaveAsync(Model, Form, DataGrid, Dialog)"
+                   Variant="Variant.Filled"
+                   Color="Color.Primary">
+            @Localizer["Save"].Value
+        </MudButton>
+    </Actions>
+</SoftMaxDialog>
+
+@code {
+    [CascadingParameter] private IMudDialogInstance Dialog { get; set; }
+    [Parameter] public ChartOfAccountRepository Repository { get; set; }
+    [Parameter] public SoftMaxGrid<ChartOfAccountRepository.Model, ChartOfAccounts> DataGrid { get; set; }
+    [Parameter] public ChartOfAccountRepository.Model Model { get; set; }
+
+    private MudForm Form { get; set; }
+    
+    private List<DataItem<string>> AccountTypes { get; set; } = new()
+    {
+        new("Asset", "Asset"),
+        new("Liability", "Liability"),
+        new("Equity", "Equity"),
+        new("Revenue", "Revenue"),
+        new("Expense", "Expense")
+    };
+
+    protected override void OnInitialized()
+    {
+        Model ??= new();
+    }
+}

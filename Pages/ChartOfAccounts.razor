@@ -1,0 +1,20 @@
+@page "/Accounting/ChartOfAccounts"
+@page "/Accounting/chart-of-accounts"
+@inherits AuthorizeComponent<ChartOfAccounts>
+<PageTitle>@GeneratePageTitle()</PageTitle>
+
+<SoftMaxGrid T=ChartOfAccountRepository.Model TComponent=ChartOfAccounts
+             @ref=SoftMaxGrid
+             @bind-Loading=Repository.DataGridLoading
+             Title="Chart of Accounts"
+             Component=this
+             Functions=Functions
+             Repository=Repository
+             Templates=Templates
+             ServerData=ServerDataAsync
+             DeleteAsync=Repository.DeleteAsync
+             DbContextFactory=_repositoryService._dbContextFactory
+             DeleteButton=@new(string.Empty, color: Color.Error)
+             AddButton=@new("Add New Account", color: Color.Primary, onClick: async e => await Repository.AddClickAsync(SoftMaxGrid)) />
+
+
