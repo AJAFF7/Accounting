@@ -1,31 +1,61 @@
 services:
-  postgres:
-    image: postgres:16-alpine
-    container_name: postgres-accounting
+  accounting:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: softmax-accounting
+    networks:
+      - accounting-network
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: postgres
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:5000
+      - USE_LOCAL_AUTHENTICATION=true
+      - USE_DIT_THEME=false
+      - DISABLE_PROFILE_UPDATE=false
+      - SEED_SECURITY_ENABLED=true
+      - SEED_SECURITY_DATA=true
+      - SIGNUP_PAGE_URL=/connect/register
+      - SyncSqlScripts=true
+      - DB_CONTEXTS_COUNT=2
+      - DB_CONTEXT_0_NAME=Admin
+      - DB_CONTEXT_0_SERVER=192.168.200.20
+      - DB_CONTEXT_0_DATABASE=SoftMaxAccounting
+      - DB_CONTEXT_0_USER=max
+      - DB_CONTEXT_0_PASSWORD=SoftMax123!@#
+      - DB_CONTEXT_0_ACTIVE=true
+      - DB_CONTEXT_1_NAME=Accounting
+      - DB_CONTEXT_1_SERVER=192.168.200.20
+      - DB_CONTEXT_1_DATABASE=SoftMaxAccounting
+      - DB_CONTEXT_1_USER=max
+      - DB_CONTEXT_1_PASSWORD=SoftMax123!@#
+      - DB_CONTEXT_1_ACTIVE=true
+      - REDIS_CONNECTION=redis:6379
+      - BACKGROUND_SERVICES_ENABLED=false
+      - DEFAULT_URL=/Admin/accounting
+      - APP_LOGO=/app/manifest/web-app-manifest-192x192.png
+      - AUTHENTICATION_PASSKEY_ENABLED=true
+    restart: unless-stopped
+
+  nginx:
+    image: nginx:alpine
+    container_name: accounting-nginx
     ports:
-      - "5432:5432"
+      - "80:80"
     volumes:
-      - postgres-data:/var/lib/postgresql
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    networks:
+      - accounting-network
+    depends_on:
+      - accounting
+    restart: unless-stopped
 
   redis:
-    image: redis:latest
-    container_name: redis-accounting
-    ports:
-      - "6379:6379"
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 5s
-      timeout: 3s
-      retries: 5
+    image: redis:alpine
+    container_name: accounting-redis
+    networks:
+      - accounting-network
+    restart: unless-stopped
 
-volumes:
-  postgres-data:
+networks:
+  accounting-network:
+    driver: bridge

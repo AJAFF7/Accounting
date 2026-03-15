@@ -1,0 +1,45 @@
+services:
+  accounting:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: softmax-accounting
+    ports:
+      - "5000:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:8080
+      - DB_CONTEXT_0_SERVER=192.168.200.20
+      - DB_CONTEXT_0_DATABASE=SoftMaxAccounting
+      - DB_CONTEXT_0_USER=max
+      - DB_CONTEXT_0_PASSWORD=SoftMax123!@#
+      - DB_CONTEXT_1_SERVER=192.168.200.20
+      - DB_CONTEXT_1_DATABASE=SoftMaxAccounting
+      - DB_CONTEXT_1_USER=max
+      - DB_CONTEXT_1_PASSWORD=SoftMax123!@#
+      - REDIS_CONNECTION=redis:6379
+      - USE_LOCAL_AUTHENTICATION=true
+    depends_on:
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+
+  redis:
+    image: redis:latest
+    container_name: redis-accounting
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
+
+volumes:
+  postgres-data:
